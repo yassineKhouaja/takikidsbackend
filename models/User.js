@@ -27,6 +27,12 @@ const UserSchema = mongoose.Schema(
       select: false,
     },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    publications: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Publication",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -7,6 +7,7 @@ import "express-async-errors";
 import connectDB from "./db/connect.js";
 // routers
 import authRouter from "./routes/authRoutes.js";
+import publicationRouter from "./routes/publicationsRoutes.js";
 
 // middleware
 import errorHandlerMiddleware from "./middleware/error-handler.js";
@@ -23,6 +24,7 @@ if (process.env.NODE_ENV !== "production") {
 app.use(express.json());
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/publications", publicationRouter);
 
 app.use(notFoundMiddleware);
 
