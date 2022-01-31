@@ -1,9 +1,9 @@
+import mongoose from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError } from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
 import Publication from "../models/publication.js";
 import User from "../models/User.js";
-
 const createPublication = async (req, res) => {
   const { title, description } = req.body;
 
@@ -23,7 +23,7 @@ const createPublication = async (req, res) => {
 const getAllPublications = async (req, res) => {
   const { createdBy, status, sort, search } = req.query;
 
-  const queryObject = {};
+  const queryObject = { isBanned: false };
 
   if (createdBy) {
     queryObject.user = createdBy;
@@ -32,14 +32,14 @@ const getAllPublications = async (req, res) => {
   if (req.user.role === "admin" && status) {
     queryObject.status = status;
   } else {
-    queryObject.status = "accepted";
+    queryObject.status = "pending";
   }
 
   if (search) {
     queryObject.title = { $regex: search, $options: "i" };
   }
 
-  let result = Publication.find(queryObject);
+  let result = Publication.find(queryObject).select("title description");
 
   if (sort === "latest") {
     result = result.sort("-createdAt");
@@ -54,7 +54,23 @@ const getAllPublications = async (req, res) => {
     result = result.sort("-title");
   }
 
-  const publications = await result;
+  const publications = await result
+    .populate({
+      path: "comments",
+      model: "Comment",
+
+      select: "content user",
+      populate: {
+        path: "user",
+        model: "User",
+        select: "userName",
+      },
+    })
+    .populate({
+      path: "user",
+      model: "User",
+      select: "userName email",
+    });
 
   res.status(StatusCodes.OK).json({ publications });
 };

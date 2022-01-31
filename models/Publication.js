@@ -21,6 +21,7 @@ const PublicationSchema = mongoose.Schema(
       },
       default: "pending",
     },
+    isBanned: { type: Boolean, default: false },
     comments: [
       {
         type: mongoose.Types.ObjectId,
