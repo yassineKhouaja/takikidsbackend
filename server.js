@@ -8,6 +8,8 @@ import connectDB from "./db/connect.js";
 // routers
 
 // middleware
+import errorHandlerMiddleware from "./middleware/error-handler.js";
+import notFoundMiddleware from "./middleware/not-found.js";
 
 console.clear();
 dotenv.config();
@@ -18,6 +20,10 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 app.use(express.json());
+
+app.use(notFoundMiddleware);
+
+app.use(errorHandlerMiddleware);
 
 const port = process.env.PORT || 5000;
 
