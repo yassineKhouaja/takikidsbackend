@@ -32,7 +32,7 @@ const PublicationSchema = mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "User",
     },
-    bannedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    bans: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ban" }],
   },
   { timestamps: true }
 );

@@ -5,7 +5,7 @@ const CommentSchema = mongoose.Schema(
     content: String,
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     publication: { type: mongoose.Schema.Types.ObjectId, ref: "Publication" },
-    bannedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    bans: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ban" }],
 
     status: {
       type: String,

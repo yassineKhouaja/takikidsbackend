@@ -3,6 +3,7 @@ import { BadRequestError, NotFoundError } from "../errors/index.js";
 import Publication from "../models/publication.js";
 import Comment from "../models/Comment.js";
 import checkPermissions from "../utils/checkPermissions.js";
+import Ban from "../models/Ban.js";
 
 const createComment = async (req, res) => {
   const { content } = req.body;
@@ -71,4 +72,26 @@ const deleteComment = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "Success! comment removed" });
 };
 
-export { createComment, updateComment, deleteComment };
+const banComment = async (req, res) => {
+  const { id: commentId } = req.params;
+
+  const comment = await Comment.findOne({ _id: commentId });
+
+  if (!comment) {
+    throw new NotFoundError(`No comment with id :${commentId}`);
+  }
+
+  if (comment.isBanned) {
+    throw new BadRequestError("this comment is already banned");
+  }
+
+  const ban = new Ban({ comment: commentId, user: req.user.userId });
+
+  comment.bans.push(ban);
+
+  await Promise.all([comment.save(), ban.save()]);
+
+  res.status(StatusCodes.OK).json({ msg: "your ban is stored" });
+};
+
+export { createComment, updateComment, deleteComment, banComment };

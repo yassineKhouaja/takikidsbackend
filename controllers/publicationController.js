@@ -3,6 +3,7 @@ import { BadRequestError, NotFoundError } from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
 import Publication from "../models/publication.js";
 import User from "../models/User.js";
+import Ban from "../models/Ban.js";
 const createPublication = async (req, res) => {
   const { title, description } = req.body;
 
@@ -12,7 +13,7 @@ const createPublication = async (req, res) => {
 
   const publication = new Publication({ title, description, user: req.user.userId });
   const user = await User.findById(req.user.userId);
-  console.log(req.user.userId);
+
   user.publications.push(publication);
 
   await Promise.all([publication.save(), user.save()]);
@@ -62,7 +63,7 @@ const getAllPublications = async (req, res) => {
       populate: {
         path: "user",
         model: "User",
-        select: "userName",
+        select: "userName email",
       },
     })
     .populate({
@@ -133,17 +134,15 @@ const banPublication = async (req, res) => {
     throw new BadRequestError("this publication is already banned");
   }
 
-  if (req.user.userId in publication.bannedBy) {
-    throw new BadRequestError("you have already banned this publication");
-  }
+  // if (req.user.userId in publication.bannedBy) {
+  //   throw new BadRequestError("you have already banned this publication");
+  // }
 
-  publication.bannedBy.push(req.user.userId);
+  const ban = new Ban({ publication: publicationId, user: req.user.userId });
 
-  if (publication.bannedBy.length === 3) {
-    publication.isBanned = true;
-  }
+  publication.bans.push(ban);
 
-  await publication.save();
+  await Promise.all([publication.save(), ban.save()]);
 
   res.status(StatusCodes.OK).json({ msg: "your ban is stored" });
 };
