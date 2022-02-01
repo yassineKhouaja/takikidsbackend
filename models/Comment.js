@@ -16,4 +16,13 @@ const CommentSchema = mongoose.Schema(
   { timestamps: true }
 );
 
+CommentSchema.pre("remove", async function (next) {
+  const Publication = mongoose.model("Publication");
+  await Publication.findByIdAndUpdate(this.publication, {
+    $pull: { comments: this._id },
+  });
+
+  next();
+});
+
 export default mongoose.model("Comment", CommentSchema);

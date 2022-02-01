@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
 import "express-async-errors";
-
+import cors from "cors";
 // db and authenticate user
 import connectDB from "./db/connect.js";
 // routers
@@ -13,15 +13,40 @@ import commentRouter from "./routes/commentsRoutes.js";
 // middleware
 import errorHandlerMiddleware from "./middleware/error-handler.js";
 import notFoundMiddleware from "./middleware/not-found.js";
+// documentations
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUI from "swagger-ui-express";
 
 console.clear();
 dotenv.config();
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Library API",
+      version: "1.0.0",
+      description: "A simple Express Library API",
+    },
+    servers: [
+      {
+        url: "http://localhost:5000",
+      },
+    ],
+  },
+  apis: ["./routes/*.js"],
+};
+
+const specs = swaggerJsDoc(options);
+
 const app = express();
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
-
+app.use(cors());
 app.use(express.json());
 
 app.use("/api/v1/auth", authRouter);

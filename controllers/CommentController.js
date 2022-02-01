@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError } from "../errors/index.js";
 import Publication from "../models/publication.js";
 import Comment from "../models/Comment.js";
+import checkPermissions from "../utils/checkPermissions.js";
 
 const createComment = async (req, res) => {
   const { content } = req.body;
@@ -24,89 +25,50 @@ const createComment = async (req, res) => {
   res.status(StatusCodes.CREATED).json({ comment });
 };
 
-export { createComment };
+const updateComment = async (req, res) => {
+  const { id: commentId } = req.params;
+  const { content } = req.body;
 
-// const getAllPublications = async (req, res) => {
-//   const { createdBy, status, sort, search } = req.query;
+  if (!content) {
+    throw new BadRequestError("Please provide content");
+  }
+  const comment = await Comment.findById(commentId);
 
-//   const queryObject = {};
+  if (!comment) {
+    throw new NotFoundError(`No comment with id :${commentId}`);
+  }
 
-//   if (createdBy) {
-//     queryObject.user = createdBy;
-//   }
+  // check permissions
+  if (req.user.role === "user") {
+    checkPermissions(req.user, comment.user);
+  }
 
-//   if (req.user.role === "admin" && status) {
-//     queryObject.status = status;
-//   } else {
-//     queryObject.status = "accepted";
-//   }
+  const updatedComment = await Comment.findOneAndUpdate(
+    { _id: commentId },
+    { content },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
-//   if (search) {
-//     queryObject.title = { $regex: search, $options: "i" };
-//   }
+  res.status(StatusCodes.OK).json({ updatedComment });
+};
 
-//   let result = Publication.find(queryObject);
+const deleteComment = async (req, res) => {
+  const { id: commentId } = req.params;
 
-//   if (sort === "latest") {
-//     result = result.sort("-createdAt");
-//   }
-//   if (sort === "oldest") {
-//     result = result.sort("createdAt");
-//   }
-//   if (sort === "a-z") {
-//     result = result.sort("title");
-//   }
-//   if (sort === "z-a") {
-//     result = result.sort("-title");
-//   }
+  const comment = await Comment.findById(commentId);
 
-//   const publications = await result;
+  if (!comment) {
+    throw new NotFoundError(`No comment with id :${commentId}`);
+  }
 
-//   res.status(StatusCodes.OK).json({ publications });
-// };
+  checkPermissions(req.user, comment.user);
 
-// const updatePublication = async (req, res) => {
-//   const { id: publicationId } = req.params;
-//   const { title, description } = req.body;
+  await comment.remove();
 
-//   if (!title || !description) {
-//     throw new BadRequestError("Please provide all values");
-//   }
-//   const publication = await Publication.findOne({ _id: publicationId });
+  res.status(StatusCodes.OK).json({ msg: "Success! comment removed" });
+};
 
-//   if (!publication) {
-//     throw new NotFoundError(`No publication with id :${publicationId}`);
-//   }
-
-//   // check permissions
-//   if (req.user.role === "user") {
-//     checkPermissions(req.user, publication.user);
-//   }
-
-//   const updatedPublication = await Publication.findOneAndUpdate(
-//     { _id: publicationId },
-//     { title, description },
-//     {
-//       new: true,
-//       runValidators: true,
-//     }
-//   );
-
-//   res.status(StatusCodes.OK).json({ updatedPublication });
-// };
-
-// const deletePublication = async (req, res) => {
-//   const { id: publicationId } = req.params;
-
-//   const publication = await Publication.findOne({ _id: publicationId });
-
-//   if (!publication) {
-//     throw new NotFoundError(`No publication with id :${publicationId}`);
-//   }
-
-//   checkPermissions(req.user, publication.user);
-
-//   await publication.remove();
-
-//   res.status(StatusCodes.OK).json({ msg: "Success! publication removed" });
-// };
+export { createComment, updateComment, deleteComment };

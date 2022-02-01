@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { StatusCodes } from "http-status-codes";
 import { BadRequestError, NotFoundError } from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
@@ -121,4 +120,38 @@ const deletePublication = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "Success! publication removed" });
 };
 
-export { createPublication, updatePublication, getAllPublications, deletePublication };
+const banPublication = async (req, res) => {
+  const { id: publicationId } = req.params;
+
+  const publication = await Publication.findOne({ _id: publicationId });
+
+  if (!publication) {
+    throw new NotFoundError(`No publication with id :${publicationId}`);
+  }
+
+  if (publication.isBanned) {
+    throw new BadRequestError("this publication is already banned");
+  }
+
+  if (req.user.userId in publication.bannedBy) {
+    throw new BadRequestError("you have already banned this publication");
+  }
+
+  publication.bannedBy.push(req.user.userId);
+
+  if (publication.bannedBy.length === 3) {
+    publication.isBanned = true;
+  }
+
+  await publication.save();
+
+  res.status(StatusCodes.OK).json({ msg: "your ban is stored" });
+};
+
+export {
+  createPublication,
+  updatePublication,
+  getAllPublications,
+  deletePublication,
+  banPublication,
+};
