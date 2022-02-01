@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const modifHistorySchema = mongoose.Schema({
+  title: String,
+  description: String,
+  status: String,
+  updatedAt: Date,
+  modifiedBy: { type: mongoose.Types.ObjectId, ref: "User" },
+});
+
 const PublicationSchema = mongoose.Schema(
   {
     title: {
@@ -15,24 +23,14 @@ const PublicationSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: {
-        values: ["pending", "accepted", "banned"],
-        message: "Status is required.",
-      },
-      default: "pending",
+      enum: ["open", "confirmed", "banned"],
+      default: "open",
     },
-    isBanned: { type: Boolean, default: false },
-    comments: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: "Comment",
-      },
-    ],
-    user: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
-    },
+    comments: [{ type: mongoose.Types.ObjectId, ref: "Comment" }],
+    user: { type: mongoose.Types.ObjectId, ref: "User" },
     bans: [{ type: mongoose.Schema.Types.ObjectId, ref: "Ban" }],
+
+    history: [modifHistorySchema],
   },
   { timestamps: true }
 );

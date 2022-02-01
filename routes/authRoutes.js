@@ -1,12 +1,12 @@
 import express from "express";
 import {
   register,
+  newUser,
   login,
   updateUser,
   updateUserAdmin,
   deleteUserAdmin,
   allUsers,
-  deleteUser,
 } from "../controllers/authController.js";
 import authenticateUser, { restrictTo } from "../middleware/auth.js";
 
@@ -17,11 +17,10 @@ router.route("/register").post(register);
 router.route("/login").post(login);
 
 router.use(authenticateUser);
-router.route("/").patch(updateUser).delete(deleteUser);
+router.route("/").patch(updateUser);
 
 router.use(restrictTo("admin"));
-router.route("/").get(allUsers);
-
+router.route("/").get(allUsers).post(newUser);
 router.route("/:id").post(updateUserAdmin).delete(deleteUserAdmin);
 
 export default router;

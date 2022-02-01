@@ -29,10 +29,8 @@ const getAllPublications = async (req, res) => {
     queryObject.user = createdBy;
   }
 
-  if (req.user.role === "admin" && status) {
+  if (status) {
     queryObject.status = status;
-  } else {
-    queryObject.status = "pending";
   }
 
   if (search) {
@@ -40,6 +38,52 @@ const getAllPublications = async (req, res) => {
   }
 
   let result = Publication.find(queryObject).select("title description");
+
+  if (sort === "latest") {
+    result = result.sort("-createdAt");
+  }
+  if (sort === "oldest") {
+    result = result.sort("createdAt");
+  }
+  if (sort === "a-z") {
+    result = result.sort("title");
+  }
+  if (sort === "z-a") {
+    result = result.sort("-title");
+  }
+
+  const publications = await result
+    .populate({
+      path: "comments",
+      model: "Comment",
+
+      select: "content user",
+      populate: {
+        path: "user",
+        model: "User",
+        select: "userName email",
+      },
+    })
+    .populate({
+      path: "user",
+      model: "User",
+      select: "userName email",
+    });
+
+  res.status(StatusCodes.OK).json({ publications });
+};
+
+const myPublication = async (req, res) => {
+  const { status, sort, search } = req.query;
+
+  const queryObject = { status: { $ne: "banned" }, user: req.user.userId };
+
+  if (search) {
+    queryObject.title = { $regex: search, $options: "i" };
+  }
+
+  let result = Publication.find(queryObject);
+  // .select("title description");
 
   if (sort === "latest") {
     result = result.sort("-createdAt");
@@ -95,7 +139,19 @@ const updatePublication = async (req, res) => {
 
   const updatedPublication = await Publication.findOneAndUpdate(
     { _id: publicationId },
-    { title, description },
+    {
+      title,
+      description,
+      $push: {
+        history: {
+          title: publication.title,
+          description: publication.description,
+          status: publication.status,
+          updatedAt: publication.updatedAt,
+          modifiedBy: req.user.userId,
+        },
+      },
+    },
     {
       new: true,
       runValidators: true,
@@ -116,7 +172,18 @@ const acceptPublication = async (req, res) => {
 
   const updatedPublication = await Publication.findOneAndUpdate(
     { _id: publicationId },
-    { status: "accepted" },
+    {
+      status: "confirmed",
+      $push: {
+        history: {
+          title: publication.title,
+          description: publication.description,
+          status: publication.status,
+          updatedAt: publication.updatedAt,
+          modifiedBy: req.user.userId,
+        },
+      },
+    },
     {
       new: true,
       runValidators: true,
@@ -134,12 +201,19 @@ const deletePublication = async (req, res) => {
   if (!publication) {
     throw new NotFoundError(`No publication with id :${publicationId}`);
   }
-
-  checkPermissions(req.user, publication.user);
+  if (req.user.role !== "admin") {
+    checkPermissions(req.user, publication.user);
+  }
 
   await publication.remove();
 
   res.status(StatusCodes.OK).json({ msg: "Success! publication removed" });
+};
+
+const getAllBans = async (req, res) => {
+  const allBans = await Ban.find({ publication: { $exists: true } });
+
+  res.status(StatusCodes.OK).json({ allBans });
 };
 
 const banPublication = async (req, res) => {
@@ -155,10 +229,6 @@ const banPublication = async (req, res) => {
     throw new BadRequestError("this publication is already banned");
   }
 
-  // if (req.user.userId in publication.bannedBy) {
-  //   throw new BadRequestError("you have already banned this publication");
-  // }
-
   const ban = new Ban({ publication: publicationId, user: req.user.userId });
 
   publication.bans.push(ban);
@@ -170,6 +240,7 @@ const banPublication = async (req, res) => {
 
 const updateBanPublication = async (req, res) => {
   const { id: banId } = req.params;
+  const { status } = req.body;
 
   const ban = await Ban.findById(banId);
 
@@ -177,25 +248,45 @@ const updateBanPublication = async (req, res) => {
     throw new NotFoundError(`No ban with id :${ban}`);
   }
 
-  await Ban.findOneAndUpdate({ _id: banId }, { status: "accepted" });
+  const updatedBan = await Ban.findOneAndUpdate(
+    { _id: banId },
+    {
+      status,
+      $push: {
+        history: {
+          status: ban.status,
+          updatedAt: ban.updatedAt,
+          adminId: ban.adminId,
+        },
+      },
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
-  const totalBans = await Ban.find({
-    $and: [{ publication: ban.publication }, { status: "accepted" }],
-  }).count();
+  if (status === "accepted") {
+    const totalBans = await Ban.find({
+      $and: [{ publication: ban.publication }, { status: "accepted" }],
+    }).count();
 
-  if (totalBans >= 3) {
-    await Publication.findByIdAndUpdate(ban.publication, { status: "banned" });
+    if (totalBans >= 3) {
+      await Publication.findByIdAndUpdate(ban.publication, { status: "banned" });
+    }
   }
 
-  res.status(StatusCodes.OK).json({ msg: "ban updated to accept status" });
+  res.status(StatusCodes.OK).json({ msg: "ban updated to accept status", updatedBan });
 };
 
 export {
   createPublication,
+  myPublication,
   updatePublication,
   getAllPublications,
   acceptPublication,
   deletePublication,
+  getAllBans,
   banPublication,
   updateBanPublication,
 };

@@ -26,6 +26,28 @@ const register = async (req, res) => {
   });
 };
 
+const newUser = async (req, res) => {
+  const { userName, email, password } = req.body;
+
+  if (!userName || !email || !password) {
+    throw new BadRequestError("please provide all values");
+  }
+
+  const userAlreadyExists = await User.findOne({ email });
+  if (userAlreadyExists) {
+    throw new BadRequestError("Email already in use");
+  }
+  const user = await User.create({ userName, email, password });
+
+  res.status(StatusCodes.CREATED).json({
+    user: {
+      email: user.email,
+      userName: user.userName,
+      password,
+    },
+  });
+};
+
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -71,14 +93,6 @@ const updateUser = async (req, res) => {
   res.status(StatusCodes.OK).json({
     user,
     token,
-  });
-};
-
-const deleteUser = async (req, res) => {
-  const user = await User.findByIdAndDelete(req.user.userId);
-
-  res.status(StatusCodes.OK).json({
-    msg: "your account was deleted successfully",
   });
 };
 
@@ -133,15 +147,15 @@ const deleteUserAdmin = async (req, res) => {
     throw new BadRequestError("Please provide a valid user id");
   }
 
-  if (user?.role === "admin") {
+  if (user.role === "admin") {
     throw new BadRequestError("you can't delete admin account");
   }
 
-  await user.delete();
+  await user.remove();
 
   res.status(StatusCodes.OK).json({
     msg: "user deleted",
   });
 };
 
-export { register, login, updateUser, deleteUserAdmin, updateUserAdmin, allUsers, deleteUser };
+export { register, newUser, login, updateUser, deleteUserAdmin, updateUserAdmin, allUsers };

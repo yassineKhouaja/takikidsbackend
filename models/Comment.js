@@ -9,8 +9,8 @@ const CommentSchema = mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["permitted", "banned"],
-      default: "permitted",
+      enum: ["open", "banned"],
+      default: "open",
     },
   },
   { timestamps: true }

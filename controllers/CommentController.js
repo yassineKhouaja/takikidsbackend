@@ -72,6 +72,12 @@ const deleteComment = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "Success! comment removed" });
 };
 
+const getAllBans = async (req, res) => {
+  const allBans = await Ban.find({ comment: { $exists: true } });
+
+  res.status(StatusCodes.OK).json({ commentsBans: allBans });
+};
+
 const banComment = async (req, res) => {
   const { id: commentId } = req.params;
 
@@ -117,4 +123,4 @@ const updateBanComment = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "ban updated to accept status" });
 };
 
-export { createComment, updateComment, deleteComment, banComment, updateBanComment };
+export { createComment, updateComment, deleteComment, getAllBans, banComment, updateBanComment };
