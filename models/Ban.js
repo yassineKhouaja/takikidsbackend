@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 
 const CommentSchema = mongoose.Schema(
   {
-    publication: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    publication: { type: mongoose.Schema.Types.ObjectId, ref: "Publication" },
     comment: { type: mongoose.Schema.Types.ObjectId, ref: "Comment" },
     bannedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 
     status: {
       type: String,
-      enum: ["pending", "banned"],
+      enum: ["pending", "accepted"],
       default: "pending",
     },
   },

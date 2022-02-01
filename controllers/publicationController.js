@@ -105,6 +105,27 @@ const updatePublication = async (req, res) => {
   res.status(StatusCodes.OK).json({ updatedPublication });
 };
 
+const acceptPublication = async (req, res) => {
+  const { id: publicationId } = req.params;
+
+  const publication = await Publication.findOne({ _id: publicationId });
+
+  if (!publication) {
+    throw new NotFoundError(`No publication with id :${publicationId}`);
+  }
+
+  const updatedPublication = await Publication.findOneAndUpdate(
+    { _id: publicationId },
+    { status: "accepted" },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  res.status(StatusCodes.OK).json({ updatedPublication });
+};
+
 const deletePublication = async (req, res) => {
   const { id: publicationId } = req.params;
 
@@ -147,10 +168,34 @@ const banPublication = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "your ban is stored" });
 };
 
+const updateBanPublication = async (req, res) => {
+  const { id: banId } = req.params;
+
+  const ban = await Ban.findById(banId);
+
+  if (!ban) {
+    throw new NotFoundError(`No ban with id :${ban}`);
+  }
+
+  await Ban.findOneAndUpdate({ _id: banId }, { status: "accepted" });
+
+  const totalBans = await Ban.find({
+    $and: [{ publication: ban.publication }, { status: "accepted" }],
+  }).count();
+
+  if (totalBans >= 3) {
+    await Publication.findByIdAndUpdate(ban.publication, { status: "banned" });
+  }
+
+  res.status(StatusCodes.OK).json({ msg: "ban updated to accept status" });
+};
+
 export {
   createPublication,
   updatePublication,
   getAllPublications,
+  acceptPublication,
   deletePublication,
   banPublication,
+  updateBanPublication,
 };

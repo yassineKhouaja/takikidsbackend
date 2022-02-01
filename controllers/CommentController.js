@@ -91,7 +91,30 @@ const banComment = async (req, res) => {
 
   await Promise.all([comment.save(), ban.save()]);
 
-  res.status(StatusCodes.OK).json({ msg: "your ban is stored" });
+  res.status(StatusCodes.OK).json({ msg: "your ban is stored", ban });
 };
 
-export { createComment, updateComment, deleteComment, banComment };
+const updateBanComment = async (req, res) => {
+  const { id: banId } = req.params;
+
+  const ban = await Ban.findById(banId);
+
+  if (!ban) {
+    throw new NotFoundError(`No ban with id :${ban}`);
+  }
+
+  await Ban.findOneAndUpdate({ _id: banId }, { status: "accepted" });
+
+  const totalBans = await Ban.find({
+    $and: [{ comment: ban.comment }, { status: "accepted" }],
+  }).count();
+
+  if (totalBans >= 3) {
+    await Comment.findByIdAndUpdate(ban.comment, { status: "banned" });
+  }
+  console.log(totalBans, ban.comment);
+
+  res.status(StatusCodes.OK).json({ msg: "ban updated to accept status" });
+};
+
+export { createComment, updateComment, deleteComment, banComment, updateBanComment };

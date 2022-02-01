@@ -5,7 +5,9 @@ import {
   updatePublication,
   getAllPublications,
   deletePublication,
+  acceptPublication,
   banPublication,
+  updateBanPublication,
 } from "../controllers/publicationController.js";
 
 import authenticateUser, { restrictTo } from "../middleware/auth.js";
@@ -20,6 +22,7 @@ router.route("/:id").delete(deletePublication).patch(updatePublication);
 router.route("/").get(getAllPublications);
 
 router.use(restrictTo("admin"));
-//router.route("/:id").delete(deleteJob).patch(updateJob);
+router.route("/accept/:id").patch(acceptPublication);
+router.route("/bans/:id").patch(updateBanPublication);
 
 export default router;
