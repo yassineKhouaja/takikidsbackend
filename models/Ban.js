@@ -2,12 +2,11 @@ import mongoose from "mongoose";
 
 const modifHistorySchema = mongoose.Schema({
   status: String,
-  status: String,
   updatedAt: Date,
   adminId: { type: mongoose.Types.ObjectId, ref: "User" },
 });
 
-const CommentSchema = mongoose.Schema(
+const BanSchema = mongoose.Schema(
   {
     publication: { type: mongoose.Schema.Types.ObjectId, ref: "Publication" },
     comment: { type: mongoose.Schema.Types.ObjectId, ref: "Comment" },
@@ -25,4 +24,4 @@ const CommentSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model("Ban", CommentSchema);
+export default mongoose.model("Ban", BanSchema);

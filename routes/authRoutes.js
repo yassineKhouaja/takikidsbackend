@@ -38,13 +38,13 @@ export default router;
  *       properties:
  *         id:
  *           type: string
- *           description: The auto-generated id of the user
+ *           description: auto-generated id of the user
  *         email:
  *           type: string
- *           description: email of the user
+ *           description: email of the account
  *         password:
  *           type: string
- *           description: The password of the user
+ *           description: The password of the account
  *         userName:
  *           type: string
  *           description: The userName of the user
@@ -57,8 +57,19 @@ export default router;
 /**
  * @swagger
  * tags:
- *   name: authentification
- *   description: user authentification
+ *   name: auth
+ *   description: all related operations to auth
+ */
+
+/**
+
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *      bearerAuth:
+ *          type: http
+ *          scheme: bearer
+ *          bearerFormat: JWT
  */
 
 /**
@@ -66,7 +77,30 @@ export default router;
  * /api/v1/auth/register:
  *   post:
  *     summary: create new user
- *     tags: [authentification]
+ *     tags: [auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: user created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: please provide all values
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/login:
+ *   post:
+ *     summary: login user
+ *     tags: [auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -75,11 +109,161 @@ export default router;
  *             $ref: '#/components/schemas/User'
  *     responses:
  *       200:
- *         description: The book was successfully created
+ *         description: successful login
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: please provide all values
+ *       401:
+ *         description: invalid credentials
+ *
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/:
+ *   patch:
+ *     security:
+ *      - bearerAuth: []
+ *     summary: update user account
+ *     tags: [auth]
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Book'
+ *
+ *     responses:
+ *       200:
+ *         description: the admin update a user account
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Please provide all values
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/:
+ *   get:
+ *     security:
+ *      - bearerAuth: []
+ *     summary: returns the list of all users
+ *     tags: [auth]
+ *
+ *     responses:
+ *       200:
+ *         description: the list of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               $ref: '#/components/schemas/User'
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/:
+ *   post:
+ *     security:
+ *      - bearerAuth: []
+ *     summary: admin create new user
+ *     tags: [auth]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
+ *
+ *     responses:
+ *       201:
+ *         description: user created
+ *       400:
+ *         description: please provide all values
+ *
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/{id}:
+ *   post:
+ *     summary: admin update user
+ *     tags: [auth]
+ *     requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Book'
+ *
+ *     responses:
+ *       200:
+ *         description: the admin update a user account
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/components/schemas/User'
  *       500:
  *         description: Some server error
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/{id}:
+ *   post:
+ *     security:
+ *      - bearerAuth: []
+ *     summary: admin update the user by id
+ *     tags: [auth]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
+ *
+ *     responses:
+ *       200:
+ *         description: user updated
+ *       400:
+ *         description: Please provide a valid user id
+ *       401:
+ *         description: you can't update admin account
+ *
+ */
+
+/**
+ * @swagger
+ * /api/v1/auth/{id}:
+ *   delete:
+ *     security:
+ *      - bearerAuth: []
+ *     summary: Remove the user by id
+ *     tags: [auth]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user id
+ *
+ *     responses:
+ *       200:
+ *         description: user deleted
+ *       400:
+ *         description: Please provide a valid user id
+ *       401:
+ *         description: you can't delete admin account
+ *
  */

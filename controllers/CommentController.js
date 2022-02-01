@@ -13,12 +13,17 @@ const createComment = async (req, res) => {
     throw new BadRequestError("Please provide content");
   }
 
-  const comment = new Comment({ content, publication: publicationId, user: req.user.userId });
   const publication = await Publication.findById(publicationId);
 
   if (!publication) {
     throw new NotFoundError(`No publication with id :${publicationId}`);
   }
+
+  if (!publication.status !== "accepted") {
+    throw new NotFoundError("this publication is not open for comments");
+  }
+
+  const comment = new Comment({ content, publication: publicationId, user: req.user.userId });
 
   publication.comments.push(comment);
 

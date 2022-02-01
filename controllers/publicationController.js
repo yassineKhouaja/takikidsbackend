@@ -21,17 +21,9 @@ const createPublication = async (req, res) => {
 };
 
 const getAllPublications = async (req, res) => {
-  const { createdBy, status, sort, search } = req.query;
+  const { sort, search } = req.query;
 
-  const queryObject = { isBanned: false };
-
-  if (createdBy) {
-    queryObject.user = createdBy;
-  }
-
-  if (status) {
-    queryObject.status = status;
-  }
+  const queryObject = { status: "confirmed" };
 
   if (search) {
     queryObject.title = { $regex: search, $options: "i" };
@@ -74,7 +66,7 @@ const getAllPublications = async (req, res) => {
 };
 
 const myPublication = async (req, res) => {
-  const { status, sort, search } = req.query;
+  const { sort, search } = req.query;
 
   const queryObject = { status: { $ne: "banned" }, user: req.user.userId };
 

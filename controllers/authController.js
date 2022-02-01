@@ -18,6 +18,7 @@ const register = async (req, res) => {
   const token = user.createJWT();
 
   res.status(StatusCodes.CREATED).json({
+    msg: "user created",
     user: {
       email: user.email,
       userName: user.userName,
@@ -40,6 +41,7 @@ const newUser = async (req, res) => {
   const user = await User.create({ userName, email, password });
 
   res.status(StatusCodes.CREATED).json({
+    msg: "user created",
     user: {
       email: user.email,
       userName: user.userName,
@@ -70,6 +72,7 @@ const login = async (req, res) => {
   user.password = undefined;
 
   res.status(StatusCodes.OK).json({
+    msg: "successful login",
     user,
     token,
   });
@@ -125,7 +128,7 @@ const updateUserAdmin = async (req, res) => {
   }
 
   if (user?.role === "admin") {
-    throw new BadRequestError("you can't update admin account");
+    throw new UnauthenticatedError("you can't update admin account");
   }
   user.email = email;
   user.userName = userName;
@@ -134,6 +137,7 @@ const updateUserAdmin = async (req, res) => {
   await user.save();
 
   res.status(StatusCodes.OK).json({
+    msg: "user updated",
     user,
   });
 };
@@ -148,7 +152,7 @@ const deleteUserAdmin = async (req, res) => {
   }
 
   if (user.role === "admin") {
-    throw new BadRequestError("you can't delete admin account");
+    throw new UnauthenticatedError("you can't delete admin account");
   }
 
   await user.remove();
