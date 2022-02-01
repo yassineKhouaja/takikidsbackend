@@ -19,6 +19,8 @@ const PublicationSchema = mongoose.Schema(
     },
     description: {
       type: String,
+      required: [true, "Please provide a description"],
+      maxLength: 1000,
       trim: true,
     },
     status: {

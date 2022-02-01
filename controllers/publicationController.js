@@ -150,7 +150,7 @@ const updatePublication = async (req, res) => {
     }
   );
 
-  res.status(StatusCodes.OK).json({ updatedPublication });
+  res.status(StatusCodes.OK).json({ msg: "publication updated", updatedPublication });
 };
 
 const acceptPublication = async (req, res) => {
@@ -182,7 +182,7 @@ const acceptPublication = async (req, res) => {
     }
   );
 
-  res.status(StatusCodes.OK).json({ updatedPublication });
+  res.status(StatusCodes.OK).json({ msg: "publication confirmed", updatedPublication });
 };
 
 const deletePublication = async (req, res) => {
@@ -199,7 +199,7 @@ const deletePublication = async (req, res) => {
 
   await publication.remove();
 
-  res.status(StatusCodes.OK).json({ msg: "Success! publication removed" });
+  res.status(StatusCodes.OK).json({ msg: "publication removed" });
 };
 
 const getAllBans = async (req, res) => {
@@ -233,6 +233,10 @@ const banPublication = async (req, res) => {
 const updateBanPublication = async (req, res) => {
   const { id: banId } = req.params;
   const { status } = req.body;
+
+  if (!status) {
+    throw new BadRequestError("Please provide a status");
+  }
 
   const ban = await Ban.findById(banId);
 
@@ -268,7 +272,7 @@ const updateBanPublication = async (req, res) => {
     }
   }
 
-  res.status(StatusCodes.OK).json({ msg: "ban updated to accept status", updatedBan });
+  res.status(StatusCodes.OK).json({ msg: `ban updated to ${status} status`, updatedBan });
 };
 
 export {

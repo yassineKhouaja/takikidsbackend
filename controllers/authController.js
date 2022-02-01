@@ -94,6 +94,7 @@ const updateUser = async (req, res) => {
   const token = user.createJWT();
 
   res.status(StatusCodes.OK).json({
+    msg: "account updated",
     user,
     token,
   });

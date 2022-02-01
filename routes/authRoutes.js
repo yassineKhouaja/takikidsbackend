@@ -134,11 +134,11 @@ export default router;
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#/components/schemas/Book'
+ *            $ref: '#/components/schemas/User'
  *
  *     responses:
  *       200:
- *         description: the admin update a user account
+ *         description: account updated
  *         content:
  *           application/json:
  *             schema:
@@ -189,31 +189,6 @@ export default router;
  *       400:
  *         description: please provide all values
  *
- */
-
-/**
- * @swagger
- * /api/v1/auth/{id}:
- *   post:
- *     summary: admin update user
- *     tags: [auth]
- *     requestBody:
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            $ref: '#/components/schemas/Book'
- *
- *     responses:
- *       200:
- *         description: the admin update a user account
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/components/schemas/User'
- *       500:
- *         description: Some server error
  */
 
 /**
