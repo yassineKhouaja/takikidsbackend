@@ -28,7 +28,7 @@ const createComment = async (req, res) => {
   publication.comments.push(comment);
 
   await Promise.all([publication.save(), comment.save()]);
-  res.status(StatusCodes.CREATED).json({ comment });
+  res.status(StatusCodes.CREATED).json({ msg: "comment created", comment });
 };
 
 const updateComment = async (req, res) => {
@@ -58,7 +58,7 @@ const updateComment = async (req, res) => {
     }
   );
 
-  res.status(StatusCodes.OK).json({ updatedComment });
+  res.status(StatusCodes.OK).json({ msg: "comment updated", updatedComment });
 };
 
 const deleteComment = async (req, res) => {
@@ -74,7 +74,7 @@ const deleteComment = async (req, res) => {
 
   await comment.remove();
 
-  res.status(StatusCodes.OK).json({ msg: "Success! comment removed" });
+  res.status(StatusCodes.OK).json({ msg: "comment removed" });
 };
 
 const getAllBans = async (req, res) => {

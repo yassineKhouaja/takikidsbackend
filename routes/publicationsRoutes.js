@@ -251,7 +251,7 @@ export default router;
  *   get:
  *     security:
  *      - bearerAuth: []
- *     summary: returns the list of all bans
+ *     summary: returns the list of all bans of publications
  *     tags: [Publication]
  *
  *     responses:
