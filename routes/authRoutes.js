@@ -223,7 +223,7 @@ export default router;
  *   delete:
  *     security:
  *      - bearerAuth: []
- *     summary: Remove the user by id
+ *     summary: Remove the user by id : restricted only to admin
  *     tags: [auth]
  *     parameters:
  *       - in: path

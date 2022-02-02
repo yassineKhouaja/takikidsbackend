@@ -132,7 +132,7 @@ export default router;
  *   delete:
  *     security:
  *      - bearerAuth: []
- *     summary: Remove the user by id
+ *     summary: Remove the publication by id
  *     tags: [Publication]
  *     parameters:
  *       - in: path
@@ -191,7 +191,7 @@ export default router;
  *   patch:
  *     security:
  *      - bearerAuth: []
- *     summary: accept publication by admin
+ *     summary: accept publication : restricted only to admin
  *     tags: [Publication]
  *     responses:
  *       200:
