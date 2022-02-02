@@ -191,7 +191,7 @@ export default router;
  *   patch:
  *     security:
  *      - bearerAuth: []
- *     summary: accept publication : restricted only to admin
+ *     summary: accept publication  restricted only to admin
  *     tags: [Publication]
  *     responses:
  *       200:

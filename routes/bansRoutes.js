@@ -86,7 +86,7 @@ export default router;
  *   get:
  *     security:
  *      - bearerAuth: []
- *     summary: returns the list of all bans: restricted only to admin
+ *     summary: returns the list of all bans restricted only to admin
  *     tags: [Ban]
  *
  *     responses:
@@ -105,7 +105,7 @@ export default router;
  *   delete:
  *     security:
  *      - bearerAuth: []
- *     summary: Remove a ban by id: restricted only to admin
+ *     summary: Remove a ban by id restricted only to admin
  *     tags: [Ban]
  *     parameters:
  *       - in: path
@@ -131,7 +131,7 @@ export default router;
  *   patch:
  *     security:
  *      - bearerAuth: []
- *     summary: update ban of publication by id :restricted only to admin
+ *     summary: update ban of publication by id restricted only to admin
  *     tags: [Ban]
  *     requestBody:
  *      required: true
@@ -173,7 +173,7 @@ export default router;
  *   patch:
  *     security:
  *      - bearerAuth: []
- *     summary: update ban of comment by id : restricted only to admin
+ *     summary: update ban of comment by id  restricted only to admin
  *     tags: [Ban]
  *     requestBody:
  *      required: true
