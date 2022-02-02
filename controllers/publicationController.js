@@ -3,7 +3,7 @@ import { BadRequestError, NotFoundError } from "../errors/index.js";
 import checkPermissions from "../utils/checkPermissions.js";
 import Publication from "../models/publication.js";
 import User from "../models/User.js";
-import Ban from "../models/Ban.js";
+
 const createPublication = async (req, res) => {
   const { title, description } = req.body;
 
@@ -202,79 +202,6 @@ const deletePublication = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "publication removed" });
 };
 
-const getAllBans = async (req, res) => {
-  const allBans = await Ban.find({ publication: { $exists: true } });
-
-  res.status(StatusCodes.OK).json({ allBans });
-};
-
-const banPublication = async (req, res) => {
-  const { id: publicationId } = req.params;
-
-  const publication = await Publication.findOne({ _id: publicationId });
-
-  if (!publication) {
-    throw new NotFoundError(`No publication with id :${publicationId}`);
-  }
-
-  if (publication.isBanned) {
-    throw new BadRequestError("this publication is already banned");
-  }
-
-  const ban = new Ban({ publication: publicationId, user: req.user.userId });
-
-  publication.bans.push(ban);
-
-  await Promise.all([publication.save(), ban.save()]);
-
-  res.status(StatusCodes.OK).json({ msg: "your ban is stored" });
-};
-
-const updateBanPublication = async (req, res) => {
-  const { id: banId } = req.params;
-  const { status } = req.body;
-
-  if (!status) {
-    throw new BadRequestError("Please provide a status");
-  }
-
-  const ban = await Ban.findById(banId);
-
-  if (!ban) {
-    throw new NotFoundError(`No ban with id :${ban}`);
-  }
-
-  const updatedBan = await Ban.findOneAndUpdate(
-    { _id: banId },
-    {
-      status,
-      $push: {
-        history: {
-          status: ban.status,
-          updatedAt: ban.updatedAt,
-          adminId: ban.adminId,
-        },
-      },
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
-  if (status === "accepted") {
-    const totalBans = await Ban.find({
-      $and: [{ publication: ban.publication }, { status: "accepted" }],
-    }).count();
-
-    if (totalBans >= 3) {
-      await Publication.findByIdAndUpdate(ban.publication, { status: "banned" });
-    }
-  }
-
-  res.status(StatusCodes.OK).json({ msg: `ban updated to ${status} status`, updatedBan });
-};
-
 export {
   createPublication,
   myPublication,
@@ -282,7 +209,4 @@ export {
   getAllPublications,
   acceptPublication,
   deletePublication,
-  getAllBans,
-  banPublication,
-  updateBanPublication,
 };

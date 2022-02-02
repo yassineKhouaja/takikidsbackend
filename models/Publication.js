@@ -38,9 +38,17 @@ const PublicationSchema = mongoose.Schema(
 );
 
 PublicationSchema.pre("remove", async function (next) {
-  const comment = mongoose.model("Comment");
+  const Comment = mongoose.model("Comment");
+  const User = mongoose.model("User");
 
-  await comment.remove({ _id: { $in: this.comments } });
+  const comment = Comment.remove({ _id: { $in: this.comments } });
+
+  const user = User.findByIdAndUpdate(this.publication.user, {
+    $pull: { publications: this._id },
+  });
+
+  await Promise.all([comment.save(), user.save()]);
+
   next();
 });
 

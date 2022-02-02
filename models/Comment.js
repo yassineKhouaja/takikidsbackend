@@ -18,9 +18,15 @@ const CommentSchema = mongoose.Schema(
 
 CommentSchema.pre("remove", async function (next) {
   const Publication = mongoose.model("Publication");
-  await Publication.findByIdAndUpdate(this.publication, {
+  const Ban = mongoose.model("Ban");
+
+  const ban = Ban.remove({ _id: { $in: this.bans } });
+
+  const publication = Publication.findByIdAndUpdate(this.publication, {
     $pull: { comments: this._id },
   });
+
+  await Promise.all([publication.save(), ban.save()]);
 
   next();
 });

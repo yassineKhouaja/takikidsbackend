@@ -24,4 +24,17 @@ const BanSchema = mongoose.Schema(
   { timestamps: true }
 );
 
+BanSchema.pre("remove", async function (next) {
+  const Comment = mongoose.model("Comment");
+
+  const idParent = this.comment || this.publication;
+  const filedParenst = this.comment ? "comments" : "publications";
+
+  await Comment.findByIdAndUpdate(idParent, {
+    $pull: { [filedParenst]: this._id },
+  });
+
+  next();
+});
+
 export default mongoose.model("Ban", BanSchema);

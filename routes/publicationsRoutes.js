@@ -7,9 +7,6 @@ import {
   getAllPublications,
   deletePublication,
   acceptPublication,
-  banPublication,
-  updateBanPublication,
-  getAllBans,
 } from "../controllers/publicationController.js";
 
 import authenticateUser, { restrictTo } from "../middleware/auth.js";
@@ -19,14 +16,10 @@ const router = express.Router();
 router.use(authenticateUser);
 router.route("/myPublication").get(myPublication);
 router.route("/").get(getAllPublications).post(createPublication);
-router.route("/bans/:id").post(banPublication);
 router.route("/:id").delete(deletePublication).patch(updatePublication);
 
 router.use(restrictTo("admin"));
 router.route("/accept/:id").patch(acceptPublication);
-
-router.route("/bans/allBans").get(getAllBans);
-router.route("/bans/:id").patch(updateBanPublication);
 
 export default router;
 
@@ -56,24 +49,6 @@ export default router;
  *         title: this the title of the publication...
  *         description:  this the description of the publication...
  *         status: open
- */
-
-/**
- * @swagger
- * components:
- *   schemas:
- *     Ban:
- *       type: object
- *       properties:
- *         id:
- *           type: string
- *           description: auto-generated id of the ban
- *         bannedBy:
- *           type: string
- *           description: the user id who bans the publication
- *         status:
- *           type: string
- *           description: The status of the ban by default pending
  */
 
 /**
@@ -212,24 +187,6 @@ export default router;
 
 /**
  * @swagger
- * /api/v1/publications/bans/{id}:
- *   post:
- *     security:
- *      - bearerAuth: []
- *     summary: repott ban for publication
- *     tags: [Publication]
- *
- *     responses:
- *       200:
- *         description: your ban is stored
- *       400:
- *         description: this publication is already banned
- *       404:
- *         description: No publication with this id
- */
-
-/**
- * @swagger
  * /api/v1/publications/accept/{id}:
  *   patch:
  *     security:
@@ -243,47 +200,4 @@ export default router;
  *         description: this publication is already banned
  *       404:
  *         description: No publication with this id
- */
-
-/**
- * @swagger
- * /api/v1/publications/bans/allBans:
- *   get:
- *     security:
- *      - bearerAuth: []
- *     summary: returns the list of all bans of publications
- *     tags: [Publication]
- *
- *     responses:
- *       200:
- *         description: the list of all bans
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               $ref: '#/components/schemas/Ban'
- */
-
-/**
- * @swagger
- * /api/v1/publications/bans/{id}:
- *   patch:
- *     security:
- *      - bearerAuth: []
- *     summary: update ban by id
- *     tags: [Publication]
- *     requestBody:
- *      required: true
- *     responses:
- *       200:
- *         description: ban updated
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/components/schemas/Ban'
- *       400:
- *         description: Please provide a status
- *       404:
- *         description: No ban with this id
  */
