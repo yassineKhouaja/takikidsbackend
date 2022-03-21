@@ -10,6 +10,7 @@ import authRouter from "./routes/authRoutes.js";
 import publicationRouter from "./routes/publicationsRoutes.js";
 import commentRouter from "./routes/commentsRoutes.js";
 import banRouter from "./routes/bansRoutes.js";
+import configRouter from "./routes/configRoutes.js";
 
 // middleware
 import errorHandlerMiddleware from "./middleware/error-handler.js";
@@ -50,10 +51,12 @@ if (process.env.NODE_ENV !== "production") {
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/publications", publicationRouter);
-app.use("/api/v1/comments", commentRouter);
-app.use("/api/v1/bans", banRouter);
+app.use("/api/v1/config", configRouter);
+
+// app.use("/api/v1/auth", authRouter);
+// app.use("/api/v1/publications", publicationRouter);
+// app.use("/api/v1/comments", commentRouter);
+// app.use("/api/v1/bans", banRouter);
 
 app.use(notFoundMiddleware);
 
