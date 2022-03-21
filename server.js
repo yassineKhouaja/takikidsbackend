@@ -12,6 +12,7 @@ import commentRouter from "./routes/commentsRoutes.js";
 import banRouter from "./routes/bansRoutes.js";
 import configRouter from "./routes/configRoutes.js";
 import typeRouter from "./routes/typeRoutes.js";
+import styleRouter from "./routes/styleRoutes.js";
 
 // middleware
 import errorHandlerMiddleware from "./middleware/error-handler.js";
@@ -54,6 +55,7 @@ app.use(express.json());
 
 app.use("/api/v1/config", configRouter);
 app.use("/api/v1/type", typeRouter);
+app.use("/api/v1/style", styleRouter);
 
 // app.use("/api/v1/auth", authRouter);
 // app.use("/api/v1/publications", publicationRouter);
