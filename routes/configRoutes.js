@@ -1,8 +1,9 @@
 import express from "express";
-import { addConfig, getAllConfigs } from "../controllers/configController.js";
+import { addConfig, getConfig } from "../controllers/configController.js";
 
 const router = express.Router();
-router.route("/").get(getAllConfigs).post(addConfig);
+router.route("/:id").get(getConfig);
+router.route("/").post(addConfig);
 
 // router.route("/myPublication").get(myPublication);
 // router.route("/").get(getAllPublications).post(createPublication);
